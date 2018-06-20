@@ -674,11 +674,13 @@ def user_update(context, data_dict):
     user = model_save.user_dict_save(data, context)
 
     # TODO: remove hack to update API Key in CAS database
-
+    log.debug('Updating Api Key in CAS Database')
     sql = 'UPDATE users SET extra_attributes = %s WHERE username = %s'
     conn = None
     updated_rows = 0
     try:
+        log.debug('apikey = ' + data['apikey'])
+        log.debug('username = ' + data['username'])
         params = config()
         conn = psycopg2.connect("dbname=casino_ar_prod_users user=cas_default password=casPWnasaace")
         cur = conn.cursor()
