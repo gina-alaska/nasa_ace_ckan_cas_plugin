@@ -649,6 +649,8 @@ def user_update(context, data_dict):
     :rtype: dictionary
 
     '''
+    log.debug('user update called')
+
     model = context['model']
     user = context['user']
     session = context['session']
