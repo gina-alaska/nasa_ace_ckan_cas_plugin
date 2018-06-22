@@ -727,6 +727,9 @@ def user_generate_apikey(context, data_dict):
     :returns: the updated user
     :rtype: dictionary
     '''
+    
+    logging.debug('user_generate_apikey called')
+
     model = context['model']
     user = context['user']
     session = context['session']
