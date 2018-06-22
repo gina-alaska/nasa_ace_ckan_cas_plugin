@@ -649,8 +649,6 @@ def user_update(context, data_dict):
     :rtype: dictionary
 
     '''
-    log.debug('user update called')
-
     model = context['model']
     user = context['user']
     session = context['session']
@@ -676,22 +674,24 @@ def user_update(context, data_dict):
     user = model_save.user_dict_save(data, context)
 
     # TODO: remove hack to update API Key in CAS database
-    log.debug('Updating Api Key in CAS Database')
-    sql = 'UPDATE users SET extra_attributes = %s WHERE username = %s'
+    log.info('Updating Api Key in CAS Database')
+    sql = 'UPDATE users SET apikey = %s WHERE username = %s'
     conn = None
     updated_rows = 0
     try:
-        log.debug('apikey = ' + data['apikey'])
-        log.debug('username = ' + data['username'])
-        params = config()
+        log.info('apikey = ' + data['apikey'])
+        log.info('username = ' + data['name'])
+        log.info('connecting to cas')
         conn = psycopg2.connect("dbname=casino_ar_prod_users user=cas_default password=casPWnasaace")
         cur = conn.cursor()
-        cur.execute(sql, (data['apikey'], data['username']))
+        log.info('connected')
+	cur.execute(sql, (data['apikey'], data['name']))
         updated_rows = cur.rowcount
         conn.commit()
+        log.info('user apikey updated')
         cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        log.debug(error)
+        log.error(error)
     finally:
         if conn is not None:
             conn.close()
