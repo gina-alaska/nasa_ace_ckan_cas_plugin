@@ -145,11 +145,12 @@ class CASClientPlugin(p.SingletonPlugin):
         if gateway:
             params = '?gateway=true&service='
         if self.CAS_VERSION == 2:
+#            url = self.CAS_LOGIN_URL + params + self.CAS_APP_URL 
             url = self.CAS_LOGIN_URL + params + self.CAS_APP_URL + '/cas/callback'
         elif self.CAS_VERSION == 3:
             url = self.CAS_LOGIN_URL + params + self.CAS_APP_URL + '/cas/saml_callback'
-        if next:
-            url = url + '?next=' + urllib.quote(t.request.environ['CKAN_CURRENT_URL'])
+#        if next:
+#            url = url + '?next=' + urllib.quote(t.request.environ['CKAN_CURRENT_URL'])
         return url
 
     def login(self):
@@ -159,6 +160,7 @@ class CASClientPlugin(p.SingletonPlugin):
     def logout(self):
         delete_user_entry(t.c.user)
         if t.asbool(config.get('ckanext.cas.single_sign_out')):
+#            cas_logout_url = self.CAS_LOGOUT_URL + '?service=' + self.CAS_APP_URL
             cas_logout_url = self.CAS_LOGOUT_URL + '?service=' + self.CAS_APP_URL + '/cas/logout'
             redirect(cas_logout_url)
         # TODO: Refactor into helper

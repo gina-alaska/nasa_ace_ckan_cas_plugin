@@ -103,6 +103,8 @@ class CASController(UserController):
 
             root = objectify.fromstring(q.content)
             failure = False
+            log.info('q content')
+            log.debug(q.content)
             try:
                 if root['Body']['{urn:oasis:names:tc:SAML:1.0:protocol}Response']['Status']['StatusCode'].get(
                         'Value') == 'samlp:Success':
@@ -197,7 +199,8 @@ class CASController(UserController):
     def cas_callback(self, **kwargs):
         log.debug('Invoked "cas_callback" method.')
         cas_plugin = p.get_plugin('cas')
-        if t.request.method.lower() == 'get':
+#        if t.request.method.lower() == 'get':
+        if True:
             next_url = t.request.params.get('next', '/')
             ticket = t.request.params.get(cas_plugin.TICKET_KEY)
             if not ticket:
@@ -206,12 +209,13 @@ class CASController(UserController):
                 redirect(cas_plugin.CAS_APP_URL + next_url)
 
             log.debug('Validating ticket: {0}'.format(ticket))
-#            log.debug('Variables: {0}'.format(cas_plugin.SERVICE_VALIDATION_URL + '?' + cas_plugin.TICKET_KEY +  '=' + ticket + '&' + cas_plugin.SERVICE_KEY + '=' + cas_plugin.CAS_APP_URL ))
+            log.debug('Variables: {0}'.format(cas_plugin.SERVICE_VALIDATION_URL + '?' + cas_plugin.TICKET_KEY +  '=' + ticket + '&' + cas_plugin.SERVICE_KEY + '=' + cas_plugin.CAS_APP_URL ))
             q = rq.get(cas_plugin.SERVICE_VALIDATION_URL,
                        params={cas_plugin.TICKET_KEY: ticket,
-                               cas_plugin.SERVICE_KEY: cas_plugin.CAS_APP_URL + '/cas/callback?next=/dataset'}, verify=cas_plugin.VERIFY_CERTIFICATE)
+                               cas_plugin.SERVICE_KEY: cas_plugin.CAS_APP_URL + '/cas/callback'}, verify=cas_plugin.VERIFY_CERTIFICATE)
+#                               cas_plugin.SERVICE_KEY: cas_plugin.CAS_APP_URL + '/cas/callback?next=/dataset'}, verify=cas_plugin.VERIFY_CERTIFICATE)
             root = objectify.fromstring(q.content)
-#	    log.debug('Q Variables: {0}'.format(q.content))
+	    log.debug('Q Variables: {0}'.format(q.content))
             try:
                 if hasattr(root.authenticationSuccess, 'user'):
                     username = root.authenticationSuccess.user
@@ -235,11 +239,11 @@ class CASController(UserController):
             log.debug('Validation of ticket {0} succedded. Authenticated user: {1}'.format(ticket, username.text))
 	    casuser = root.authenticationSuccess.user.text
             attrs = root.authenticationSuccess.attributes.__dict__
-#	    log.debug('Variables attrs: {0}'.format(attrs))
+	    log.debug('Variables attrs: {0}'.format(attrs))
             data_dict = {}
 	    log.debug('Variables user map: {0}'.format(cas_plugin.USER_ATTR_MAP))
             for key, val in cas_plugin.USER_ATTR_MAP.items():
-#		log.debug('Variables for dictionary: KEY: {0}  VALUE: {1}'.format(key, val))
+		log.debug('Variables for dictionary: KEY: {0}  VALUE: {1}'.format(key, val))
                 if type(val) == list:
                     data_dict[key] = ' '.join([attrs.get(x).text for x in val])
                 elif key == 'user':
